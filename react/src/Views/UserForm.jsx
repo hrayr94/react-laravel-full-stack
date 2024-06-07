@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axiosClient from "../axios-client";
+import { useStateContext } from "../contexts/ContextProvider";
 
-function UserForm() {
-  const { id } = useParams();
+export default function UserForm() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState(null);
-
+  let { id } = useParams();
   const [user, setUser] = useState({
     id: null,
     name: "",
@@ -15,6 +13,9 @@ function UserForm() {
     password: "",
     password_confirmation: "",
   });
+  const [errors, setErrors] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const { setNotification } = useStateContext();
 
   if (id) {
     useEffect(() => {
@@ -37,7 +38,7 @@ function UserForm() {
       axiosClient
         .put(`/users/${user.id}`, user)
         .then(() => {
-          //TODO show notification
+          setNotification("User was successfully updated");
           navigate("/users");
         })
         .catch((err) => {
@@ -50,7 +51,7 @@ function UserForm() {
       axiosClient
         .post("/users", user)
         .then(() => {
-          //TODO show notification
+          setNotification("User was successfully created");
           navigate("/users");
         })
         .catch((err) => {
@@ -64,11 +65,10 @@ function UserForm() {
 
   return (
     <>
-      {user.id && <h1>Upadte User: {user.name}</h1>}
+      {user.id && <h1>Update User: {user.name}</h1>}
       {!user.id && <h1>New User</h1>}
       <div className="card animated fadeInDown">
         {loading && <div className="text-center">Loading...</div>}
-
         {errors && (
           <div className="alert">
             {Object.keys(errors).map((key) => (
@@ -79,14 +79,13 @@ function UserForm() {
         {!loading && (
           <form onSubmit={onSubmit}>
             <input
-              onChange={(ev) => setUser({ ...user, name: ev.target.value })}
               value={user.name}
+              onChange={(ev) => setUser({ ...user, name: ev.target.value })}
               placeholder="Name"
             />
             <input
-              type="email"
-              onChange={(ev) => setUser({ ...user, email: ev.target.value })}
               value={user.email}
+              onChange={(ev) => setUser({ ...user, email: ev.target.value })}
               placeholder="Email"
             />
             <input
@@ -108,5 +107,3 @@ function UserForm() {
     </>
   );
 }
-
-export default UserForm;

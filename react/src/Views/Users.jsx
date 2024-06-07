@@ -1,24 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axiosClient from "../axios-client";
+import { useStateContext } from "../contexts/ContextProvider";
 
 function Users() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { setNotification } = useStateContext();
 
   useEffect(() => {
     getUsers();
   }, []);
 
   const onDelete = (u) => {
-    if (!window.confirm("Are you sue you want to delete this user?")) {
+    if (!window.confirm("Are you sure you want to delete this user?")) {
       return;
     }
-    // setLoading(true);
     axiosClient.delete(`/users/${u.id}`).then(() => {
       //TODO show notification
+      setNotification("User was successfully deleted");
+
       getUsers();
-      // setLoading(false);
     });
   };
 
