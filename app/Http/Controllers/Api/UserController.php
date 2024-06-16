@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
+use Illuminate\Http\Response;
 
 class UserController extends Controller
 {
@@ -18,7 +19,7 @@ class UserController extends Controller
     public function index()
     {
         return UserResource::collection(
-            User::query()->orderBy('id', 'desc')->paginate(10)
+            User::query()->orderBy('id', 'desc')->paginate(25)
         );
     }
 
@@ -28,12 +29,12 @@ class UserController extends Controller
      * @param  \App\Http\Requests\StoreUserRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreUserRequest $request)
+    public function store(StoreUserRequest $request): UserResource
     {
         $data = $request->validate();
         $data['password'] = bcrypt($data['password']);
         $user = User::create($data);
-        return response(new UserResource($user), 201);
+        return UserResource::make($user);
     }
 
     /**
@@ -42,9 +43,9 @@ class UserController extends Controller
      * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function show(User $user)
+    public function show(User $user): UserResource
     {
-        return new UserResource($user);
+        return UserResource::make($user);
     }
 
     /**
@@ -54,14 +55,14 @@ class UserController extends Controller
      * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateUserRequest $request, User $user)
+    public function update(UpdateUserRequest $request, User $user): UserResource
     {
-        $request->validated();
+        $data = $request->validated();
         if (isset($data['password'])) {
             $data['password'] = bcrypt($data['password']);
-            $user->update($data);
         }
-        return new UserResource($user);
+        $user->update($data);
+        return UserResource::make($user);
     }
 
     /**
@@ -70,7 +71,7 @@ class UserController extends Controller
      * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function destroy(User $user)
+    public function destroy(User $user): Response
     {
         $user->delete();
         return response('', 204);
