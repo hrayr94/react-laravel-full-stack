@@ -7,7 +7,9 @@ use App\Models\User;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Response as FacadesResponse;
 
 class UserController extends Controller
 {
@@ -50,7 +52,6 @@ class UserController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
      * @param  \App\Http\Requests\UpdateUserRequest  $request
      * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
@@ -62,6 +63,7 @@ class UserController extends Controller
             $data['password'] = bcrypt($data['password']);
         }
         $user->update($data);
+
         return UserResource::make($user);
     }
 
@@ -71,9 +73,9 @@ class UserController extends Controller
      * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function destroy(User $user): Response
+    public function destroy(User $user): JsonResponse
     {
         $user->delete();
-        return response('', 204);
+        return response()->json(['message' => 'User Succsessfuly deleted']);
     }
 }
